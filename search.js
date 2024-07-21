@@ -1,0 +1,6 @@
+
+async function loadSearchIndex(searchIndexPath){const{default:MiniSearch}=await import('/minisearch.js');return new Promise((resolve,reject)=>{const searchIndexRequest=new XMLHttpRequest();searchIndexRequest.onreadystatechange=()=>{if(searchIndexRequest.readyState===4){const searchIndexEntries=JSON.parse(searchIndexRequest.responseText);const searchIndex=new MiniSearch({fields:['title','tags','strippedTitles','body'],storeFields:['id','title','tags','group','page','body'],searchOptions:{boost:{title:3,strippedTitles:2,}}});searchIndex.addAll(searchIndexEntries);resolve(searchIndex);}}
+searchIndexRequest.open('GET',searchIndexPath);searchIndexRequest.send();});}
+async function getSearchIndex(searchIndexPath){if(!window.toonsquid_search_index){window.toonsquid_search_index=await loadSearchIndex(searchIndexPath);}
+const searchIndex=window.toonsquid_search_index;return searchIndex;}
+export async function search(text,searchIndexPath){const searchIndex=await getSearchIndex(searchIndexPath);return searchIndex.search(text,{fuzzy:0.3});}
